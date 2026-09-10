@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "race": "Tauren",
+  "sex": "Female",
+  "source": {
+    "modelPath": "Character/Tauren/Female/TaurenFemale_HD.m2",
+    "fileDataId": 986648
+  },
+  "target": {
+    "clientBuild": 12340,
+    "legacyPath": "Character/Tauren/Female/TaurenFemale.m2"
+  }
+}

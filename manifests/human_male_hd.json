@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "race": "Human",
+  "sex": "Male",
+  "source": {
+    "modelPath": "Character/Human/Male/HumanMale_HD.m2",
+    "fileDataId": 1011653
+  },
+  "target": {
+    "clientBuild": 12340,
+    "legacyPath": "Character/Human/Male/HumanMale.m2"
+  }
+}

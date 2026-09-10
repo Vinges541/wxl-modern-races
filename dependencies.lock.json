@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Pinned compatibility profile; not a transitive package-manager lockfile",
+  "python": {"requires": ">=3.10", "testedLocally": ["3.12", "3.14"], "ciTargets": ["3.10", "3.12", "3.14"]},
+  "pythonPackages": {"Pillow": "12.3.0", "unicornOptional": "2.1.4"},
+  "exporter": {"repository": "https://github.com/Kruithne/wow.export", "version": "0.2.19", "license": "MIT"},
+  "retail": {"product": "wow", "version": "12.1.0.69587", "BuildConfig": "c9fa1a64b0170829cc5c5c98c71025c3", "availabilityGuaranteed": false},
+  "client": {"build": 12340, "validatedLocale": "ruRU", "originalExeSha256": "aa63a5750d60ef16746c686b3d5e26876d98953eab08b1c026cd0faf78e88cb8"},
+  "warcraftXL": {"repository": "https://github.com/WarcraftXL/wxl-core", "commit": "3990e09b5f80e77351d605dcd48d76b68ab2c2bf", "version": "v1.1.245", "license": "GPL-3.0-or-later", "dllSha256": "0723d3b115d60ad8aca27bc5caaff8dffa113efb491251d9db0fa4e22426f09d"},
+  "modernM2": {"repository": "https://github.com/WarcraftXL/wxl-modern-m2", "commit": "7845be16924a1ec8644b957f26726a73d4a8556e", "version": "v1.0.0", "license": "GPL-3.0-or-later", "originalDllSha256": "daada1341ba3e480585fbaf16a7badea85c8e7141036a572c5c1e72001b65766"},
+  "stormlib": {"version": "9.30", "source": "wxl-core/deps/stormlib at the pinned warcraftXL commit", "build": "shared library; supplied locally"},
+  "verifiedOutputSha256": {
+    "Wow.exe": "50e16ecacac5ab77b083c2a56a2b92b4bac69a00749652756f9d3cc369491985",
+    "WarcraftXL.dll": "0723d3b115d60ad8aca27bc5caaff8dffa113efb491251d9db0fa4e22426f09d",
+    "Extensions/wxl-modern-m2/wxl-modern-m2.dll": "76947b794d899280da55a639d6f6207c6e47be8d59904acdb61effcb55081d1d"
+  },
+  "localRuntimeEvidence": {"wine": "cx-26.3.0-4", "x87sidecar": "1.6.0", "mtld3d": "0.7.0", "redistributed": false}
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "race": "Gnome",
+  "sex": "Female",
+  "source": {
+    "modelPath": "Character/Gnome/Female/GnomeFemale_HD.m2",
+    "fileDataId": 940356
+  },
+  "target": {
+    "clientBuild": 12340,
+    "legacyPath": "Character/Gnome/Female/GnomeFemale.m2"
+  }
+}

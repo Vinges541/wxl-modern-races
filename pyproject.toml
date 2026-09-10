@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wxl-modern-races"
+version = "0.1.0a1"
+description = "Audit and stage wow.export player-model bundles for WarcraftXL"
+requires-python = ">=3.10"
+license = { text = "GPL-3.0-or-later" }
+readme = "README.md"
+dependencies = []
+
+[project.optional-dependencies]
+prepare = ["Pillow==12.3.0"]
+test = ["Pillow==12.3.0"]
+emulation = ["unicorn==2.1.4"]
+
+[project.scripts]
+wxl-races = "wxl_races.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "race": "Human",
+  "sex": "Male",
+  "source": {
+    "modelPath": "character/human/male/humanmale.m2",
+    "fileDataId": 119940,
+    "fileDataIdPaths": {
+      "1018799": "Character/BloodElf/Female/deathKnightEyeGlow.blp"
+    }
+  },
+  "target": {
+    "clientBuild": 12340,
+    "legacyPath": "Character/Human/Male/HumanMale.m2"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "race": "BloodElf",
+  "sex": "Male",
+  "source": {
+    "modelPath": "Character/BloodElf/Male/BloodElfMale_HD.m2",
+    "fileDataId": 1100087
+  },
+  "target": {
+    "clientBuild": 12340,
+    "legacyPath": "Character/BloodElf/Male/BloodElfMale.m2"
+  }
+}

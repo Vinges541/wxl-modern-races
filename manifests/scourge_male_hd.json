@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "race": "Scourge",
+  "sex": "Male",
+  "source": {
+    "modelPath": "Character/Scourge/Male/ScourgeMale_HD.m2",
+    "fileDataId": 959310
+  },
+  "target": {
+    "clientBuild": 12340,
+    "legacyPath": "Character/Scourge/Male/ScourgeMale.m2"
+  }
+}

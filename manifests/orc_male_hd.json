@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "race": "Orc",
+  "sex": "Male",
+  "source": {
+    "modelPath": "Character/Orc/Male/OrcMale_HD.m2",
+    "fileDataId": 917116
+  },
+  "target": {
+    "clientBuild": 12340,
+    "legacyPath": "Character/Orc/Male/OrcMale.m2"
+  }
+}

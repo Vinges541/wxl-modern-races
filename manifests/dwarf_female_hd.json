@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "race": "Dwarf",
+  "sex": "Female",
+  "source": {
+    "modelPath": "Character/Dwarf/Female/DwarfFemale_HD.m2",
+    "fileDataId": 950080
+  },
+  "target": {
+    "clientBuild": 12340,
+    "legacyPath": "Character/Dwarf/Female/DwarfFemale.m2"
+  }
+}

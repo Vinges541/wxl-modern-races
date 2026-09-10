@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "race": "NightElf",
+  "sex": "Female",
+  "source": {
+    "modelPath": "Character/NightElf/Female/NightElfFemale_HD.m2",
+    "fileDataId": 921844
+  },
+  "target": {
+    "clientBuild": 12340,
+    "legacyPath": "Character/NightElf/Female/NightElfFemale.m2"
+  }
+}

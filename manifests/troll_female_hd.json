@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "race": "Troll",
+  "sex": "Female",
+  "source": {
+    "modelPath": "Character/Troll/Female/TrollFemale_HD.m2",
+    "fileDataId": 1018060
+  },
+  "target": {
+    "clientBuild": 12340,
+    "legacyPath": "Character/Troll/Female/TrollFemale.m2"
+  }
+}

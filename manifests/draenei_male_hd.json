@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "race": "Draenei",
+  "sex": "Male",
+  "source": {
+    "modelPath": "Character/Draenei/Male/DraeneiMale_HD.m2",
+    "fileDataId": 1005887
+  },
+  "target": {
+    "clientBuild": 12340,
+    "legacyPath": "Character/Draenei/Male/DraeneiMale.m2"
+  }
+}
