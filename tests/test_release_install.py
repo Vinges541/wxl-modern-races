@@ -79,6 +79,22 @@ class InstallTests(unittest.TestCase):
     with self.assertRaises(BundleError):
       installer.plan(self.package, self.client)
 
+  def test_neutral_assets_require_tables_and_extension(self):
+    self.report['appearanceRouting'] = 'wxl-io-v1'
+    self.report.pop('locale')
+    self.save()
+    with self.assertRaisesRegex(ValueError, 'tables missing'):
+      installer.plan(self.package, self.client)
+    for name in installer.TABLES:
+      relative = f'Data/Patch-ModernRaces-HD.MPQ/{installer.NAMESPACE}/{name}'
+      path = self.package/relative
+      path.parent.mkdir(parents=True, exist_ok=True)
+      path.write_bytes(b'synthetic table')
+      self.report['files'].append({'path': relative, 'size': path.stat().st_size, 'sha256': installer.digest(path)})
+    self.save()
+    with self.assertRaisesRegex(ValueError, 'redirect runtime'):
+      installer.plan(self.package, self.client)
+
   @patch.object(installer, 'require_wow_closed')
   def test_partial_install_has_usable_checkpoint(self, closed):
     entries = installer.plan(self.package, self.client)

@@ -7,7 +7,7 @@ the source checkout and installed client; preparation does not modify the client
 ## 1. Inputs
 
 Use the versions and hashes in [dependencies.lock.json](../dependencies.lock.json).
-You need raw Retail exports, original WotLK MPQs, locale-matched
+You need raw Retail exports, original WotLK build-12340 MPQs,
 `CharSections.dbc` and `CreatureDisplayInfoExtra.dbc`, and a StormLib shared library.
 Extract the DBCs from the original client using an MPQ extraction tool.
 
@@ -75,15 +75,16 @@ mode variables between launches. The adapter generates the manifests and IDs.
 
 Every pass must use the same pinned BuildConfig. If it is no longer available
 online, supply a matching saved export; the adapter will not substitute another
-build. Legacy DBCs must match the installation locale; ruRU is the validated
-profile, and other locales require testing.
+build. Appearance DBCs must match client build 12340. These two tables contain
+texture paths and appearance values, not translated text. The package has no
+locale-specific destination; ruRU is the in-game-tested locale.
 
 ## 3. Prepare models and textures
 
 ```sh
 python tools/prepare_release.py --workspace /private/work \
   --client /path/to/client --dbc-dir /private/original-dbc \
-  --stormlib /private/work/stormlib-build/libstorm.dylib --locale ruRU
+  --stormlib /private/work/stormlib-build/libstorm.dylib
 ```
 
 This validates inputs and prints the plan. Add `--build` to execute.
@@ -94,20 +95,56 @@ disable conversion checks.
 Output: `work/build/release/`, including `release-manifest.json`. The pipeline
 prepares models, player/NPC textures, helmet attachments and animation/shadow
 compatibility changes. It does not generate world-scale overrides.
+The two appearance DBCs are stored under `WXL/ModernRaces/DBFilesClient/`
+inside the shared patch. There is no `--locale` option or locale patch output.
 
 ## 4. Prepare runtime patches
 
-Supply the original game executable and the pinned WarcraftXL DLLs:
+First build the appearance extension using Clang and `lld-link`, with the
+pinned wxl-core `include/` directory. No Windows SDK, CRT or DLL imports are
+needed. The verified compiler versions are recorded in the lockfile; another
+toolchain's differing output is refused until separately verified. The output
+file must be new and its parent directory must already exist:
+
+```sh
+python tools/build_appearance_redirect.py --sdk /private/upstream/wxl-core/include \
+  --output /private/work/wxl-modern-races.dll
+```
+
+Supply that extension, the original game executable and pinned WarcraftXL DLLs:
 
 ```sh
 python tools/build_runtime.py --original-exe /private/original/Wow.exe \
   --core /private/upstream/WarcraftXL.dll --module /private/upstream/wxl-modern-m2.dll \
+  --appearance /private/work/wxl-modern-races.dll \
   --output /private/work/runtime
 ```
 
 The output directory must be new. Input signatures and final hashes are checked
 against the supported profile. This output contains a game executable; do not
 publish it or the generated asset package.
+
+The extension registers exact-name redirects for `CharSections.dbc` and
+`CreatureDisplayInfoExtra.dbc` on the verified `Io.FileOpen` hook point. WarcraftXL
+loads and arms these hooks synchronously before engine initialisation. This
+does not depend on the pinned core's deferred storage-service thread. The native
+reader still handles archives, compression, flags and file handles. Explicit
+archive requests and every other path are passed through unchanged.
+
+The runtime includes a Tauren-only creation/selection preview correction. For
+an existing installation of the previous verified runtime, upgrade just this
+fix without rebuilding assets:
+
+```sh
+python tools/install_glue_preview.py --client /path/to/client
+# Close WoW; deliberately replace only Wow.exe without a rollback copy:
+python tools/install_glue_preview.py --client /path/to/client \
+  --apply --no-backup --report /private/reports/tauren-preview.json
+```
+
+The report directory must exist. Unknown EXEs or runtime DLLs are refused;
+reapplying is a no-op. This changes two GLUE-only transform calls, not the shared
+world transform function, M2 geometry, DBC scales, animation code or settings.
 
 ## 5. Install and restore
 
@@ -136,3 +173,92 @@ python tools/install_release.py --client /path/to/client --rollback /path/to/che
 ```
 
 Rollback refuses to overwrite later user changes and retains the backup.
+
+## 6. Lossless MPQ packing
+
+To compress an already installed loose `Data/Patch-ModernRaces-HD.MPQ/`
+without changing any file bytes, use a fresh private workspace and StormLib
+9.30. No game or Wine process is launched:
+
+```sh
+python tools/pack_mpq.py build --client /path/to/client \
+  --workspace /private/work/races-mpq --stormlib /path/to/libstorm.dylib
+python tools/pack_mpq.py install --client /path/to/client \
+  --workspace /private/work/races-mpq --stormlib /path/to/libstorm.dylib
+```
+
+The second command previews installation. The supported runtime must match the
+verified hashes in `dependencies.lock.json`, including the named-patch wildcard
+edit. Every input path, file size and SHA-256 is checked against both StormLib
+readback and an independent MPQ decoder. This includes case-insensitive lookup,
+classic hash collisions, exact listfile coverage, sector bounds and compression.
+
+The profile uses MPQ v2 (header version 1), as the original WotLK archives do:
+4096-byte sectors, lossless zlib, neutral locale, no file encryption or delta
+patches. Archives may exceed 2 GiB. Parts are split only to keep offsets below
+4 GiB or the tool's 60,000-resource limit. These are conservative profile bounds,
+not a claim about the largest archive the game can read. All parts are named
+`Patch-ModernRaces-HD-001.MPQ`, `-002.MPQ`, etc.; each resource occurs once.
+Installation rejects another patch interleaving this group and its original
+name, so the group's position relative to other patches is preserved.
+
+Close WoW before applying. To deliberately discard the replaced loose files
+without keeping a rollback copy, create a private report directory and run:
+
+```sh
+python tools/pack_mpq.py install --client /path/to/client \
+  --workspace /private/work/races-mpq --stormlib /path/to/libstorm.dylib \
+  --apply --discard-loose --report /private/reports/modern-races.json
+```
+
+This operation is intentionally irreversible. It verifies the source again,
+creates the parts exclusively on the same filesystem, checks them in place,
+then removes only the replaced loose directory and temporary build. The report
+and adjacent `modern-races.manifest.json` retain hashes, not game resources.
+If installation is interrupted, keep the loose directory and build workspace
+until the reported state is inspected; do not launch a partially installed game.
+Recheck installed archives later with:
+
+```sh
+python tools/pack_mpq.py verify --client /path/to/client \
+  --manifest /private/reports/modern-races.manifest.json \
+  --stormlib /path/to/libstorm.dylib
+```
+
+This tool packs only the root modern-races overlay. Locale, equipment and other
+patches, executables, runtime and settings are not changed. Do not direct the
+loose-package installer into compressed archives; prepare future asset changes
+in a fresh private tree and verify/repack them. Offline verification does not
+replace an in-game load/rendering check.
+
+## 7. Migrate an existing locale patch
+
+For an already installed client, build a small shared appearance archive instead
+of repacking the large HD archives. Build the extension as above, then use the
+existing patched DBC directory as input (not original unmodified DBCs):
+
+```sh
+python tools/install_appearance_redirect.py build \
+  --tables /path/to/client/Data/ruRU/patch-ruRU-ModernRaces.MPQ/DBFilesClient \
+  --extension /private/work/wxl-modern-races.dll \
+  --workspace /private/work/appearance-package --stormlib /path/to/libstorm.dylib
+python tools/install_appearance_redirect.py install --client /path/to/client \
+  --workspace /private/work/appearance-package --stormlib /path/to/libstorm.dylib
+```
+
+The input path above is an example; neither the extension nor the output package
+uses a locale. The package contains `Data/Patch-ModernRaces-Appearance.MPQ` and
+`Extensions/wxl-modern-races/wxl-modern-races.dll`. Close WoW, then repeat the
+install command with `--apply --no-backup --report /private/reports/appearance.json`.
+The report parent must exist. No EXE, existing HD archive, configuration or other
+extension is replaced. Only known locale patch directories containing exactly
+the same two tables are removed, after native and independent archive readback.
+Unknown contents, changed files, symlinks and occupied differing destinations
+are refused. Interrupted multi-file installations require inspecting the private
+report before launching; no rollback copy is created. A matching completed
+installation is a no-op. The verified package can be removed after deployment.
+
+Old standard-path DBC entries inside existing HD archives may remain: redirected
+requests use only the unique namespaced copies. New full builds omit those old
+entries entirely. The migration does not claim other client locales have been
+tested in-game.

@@ -8,6 +8,9 @@ and the [license grant](README.md#license).
 - [wxl-core](https://github.com/WarcraftXL/wxl-core), commit
   `3990e09b5f80e77351d605dcd48d76b68ab2c2bf`: GPL-3.0-or-later.
   Copyright (C) 2026 WarcraftXL.
+- `runtime/appearance_redirect.c` uses the pinned core's `PluginApi.h` ABI and
+  named file-I/O hook points. SDK headers are supplied from that upstream checkout;
+  the local builder verifies the header hash. The extension is GPL-3.0-or-later.
 - tools/patch_wow.py is a Python adaptation of the base patcher behavior,
   including the PE import layout and edits from src/patcher/PeImage.cpp,
   GlueUnlock.cpp and NamedPatchArchives.cpp. It replaces the original C++
@@ -65,3 +68,10 @@ SOFTWARE.
 - World of Warcraft models, animations, textures, DBCs, archives, game
   executables and trademarks remain the property of their respective owners.
   Supply authorized inputs and do not publish generated game-data packages.
+
+## MPQ verification helpers
+
+The narrow MPQ reader and StormLib packing helpers in `tools/mpq_format.py`
+and `tools/pack_mpq.py` are adapted from wxl-equipment-textures under
+GPL-3.0-or-later. StormLib is supplied separately; its classic hash/table
+format is used by the independent verifier. No StormLib binary is distributed.

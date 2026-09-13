@@ -9,7 +9,7 @@ WORKSPACE = Path(os.environ.get('WXL_WORKSPACE', SOURCE_ROOT)).expanduser().reso
 def dbc_path(name):
   directory = os.environ.get('WXL_DBC_DIR')
   if not directory:
-    raise ValueError('Set WXL_DBC_DIR to a directory of original, locale-matched 3.3.5a DBC files')
+    raise ValueError('Set WXL_DBC_DIR to original build-12340 appearance DBC files')
   if Path(name).name != name:
     raise ValueError('Expected a DBC filename')
   return Path(directory).expanduser().resolve() / name

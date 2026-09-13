@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import sys
 from source_profile import validate_models
+from appearance_tables import NAMESPACE, TABLES, validate
 
 SOURCE = Path(__file__).resolve().parents[1]
 STEPS = (
@@ -41,7 +42,7 @@ def copy_tree(source, destination):
       shutil.copy2(path, target)
 
 
-def assemble(workspace, locale):
+def assemble(workspace):
   """Explicit last-writer order; final package contains assets, not old diagnostic files."""
   build = workspace / 'build'
   release = build / 'release'
@@ -74,7 +75,12 @@ def assemble(workspace, locale):
   tables = patch / 'DBFilesClient'
   if {p.name for p in tables.iterdir()} != {'CharSections.dbc', 'CreatureDisplayInfoExtra.dbc'}:
     raise ValueError('Unexpected DBC override; scale overrides are forbidden')
-  copy_tree(tables, release / f'Data/{locale}/patch-{locale}-ModernRaces.MPQ/DBFilesClient')
+  for name in TABLES:
+    validate(name, (tables/name).read_bytes())
+  copy_tree(tables, patch / NAMESPACE)
+  for name in TABLES:
+    (tables/name).unlink()
+  tables.rmdir()
   models = sorted((patch / 'Character').glob('*/*/*.m2'))
   if len(models) != 20:
     raise ValueError('Expected exactly 20 final models')
@@ -83,7 +89,8 @@ def assemble(workspace, locale):
     if path.is_file() and path.name != 'release-manifest.json':
       entries.append({'path': path.relative_to(release).as_posix(),
                       'sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'size': path.stat().st_size})
-  manifest = {'schemaVersion': 1, 'kind': 'wxl-modern-races-assets', 'locale': locale,
+  manifest = {'schemaVersion': 1, 'kind': 'wxl-modern-races-assets',
+              'appearanceRouting': 'wxl-io-v1',
               'runtimeVerified': False, 'files': entries}
   (release / 'release-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
   return release
@@ -93,9 +100,8 @@ def main(argv=None):
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument('--workspace', type=Path, required=True, help='private inputs; build/ must not exist')
   parser.add_argument('--client', type=Path, required=True, help='original MPQs, read-only')
-  parser.add_argument('--dbc-dir', type=Path, required=True, help='original locale-matched DBCs')
+  parser.add_argument('--dbc-dir', type=Path, required=True, help='original build-12340 appearance DBCs')
   parser.add_argument('--stormlib', type=Path, required=True)
-  parser.add_argument('--locale', required=True, choices=('ruRU', 'enUS', 'enGB', 'deDE', 'frFR', 'esES', 'esMX', 'koKR', 'zhCN', 'zhTW'))
   parser.add_argument('--build', action='store_true', help='execute; default only validates inputs and prints steps')
   args = parser.parse_args(argv)
   work = args.workspace.expanduser().resolve()
@@ -126,7 +132,7 @@ def main(argv=None):
     for step in STEPS:
       subprocess.run([sys.executable, str(SOURCE / 'tools' / step[0]), *step[1:]], env=env, check=True)
     # The helpers below do not read environment-dependent paths.
-    print(assemble(work, args.locale))
+    print(assemble(work))
     return 0
   except (OSError, ValueError, subprocess.CalledProcessError) as exc:
     print(f'error: {exc}', file=sys.stderr)

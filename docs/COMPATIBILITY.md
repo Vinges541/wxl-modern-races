@@ -12,8 +12,8 @@ hashes in [dependencies.lock.json](../dependencies.lock.json).
 | Textures | Composite textures use WotLK-compatible dimensions, not full Retail resolution. |
 | Elf eyes | Optional Primalist eye effects are excluded; ordinary eye materials remain. |
 | Undead female jaw | Uses the intact-jaw default, without a full jaw-customization mapping. |
-| Tauren | Character-selection camera framing needs review. World-scale overrides are not included. |
-| Locales | ruRU validated; other locales require testing. |
+| Tauren | Creation/selection previews use a separate scale correction (male ×2/3, female ×0.8). World scale is unchanged. |
+| Locales | Shared appearance tables use locale-independent paths and early WarcraftXL redirects. ruRU is the tested client locale; other locales require in-game testing. |
 
 The tested game runtime is macOS with Wine cx-26.3.0-4, x87sidecar 1.6.0 and
 mtld3d 0.7.0. Oversized shadows and shader-cache texture corruption require

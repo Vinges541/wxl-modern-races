@@ -8,6 +8,8 @@ import tempfile
 
 from configure_client import atomic_write, require_wow_closed
 from build_runtime import OUTPUT_HASHES
+from appearance_tables import NAMESPACE, TABLES
+from build_appearance_redirect import DLL_PATH, DLL_SHA256
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 from wxl_races.bundle import _destination, _game_path, BundleError
 
@@ -54,6 +56,13 @@ def plan(package, client):
     raise ValueError('Empty package')
   if runtime and names != {name.casefold() for name in OUTPUT_HASHES}:
     raise ValueError('Incomplete runtime package')
+  if not runtime and report.get('appearanceRouting') == 'wxl-io-v1':
+    required = {f'Data/Patch-ModernRaces-HD.MPQ/{NAMESPACE}/{name}'.casefold() for name in TABLES}
+    if not required.issubset(names):
+      raise ValueError('Namespaced appearance tables missing from package')
+    extension = _destination(client, DLL_PATH)
+    if not extension.is_file() or digest(extension) != DLL_SHA256:
+      raise ValueError('Install the verified appearance redirect runtime before assets')
   return result
 
 

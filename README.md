@@ -4,6 +4,8 @@ Tools for preparing modern player-race models for **World of Warcraft 3.3.5a,
 build 12340**, with [WarcraftXL](https://github.com/WarcraftXL/wxl-core).
 Supports both sexes of all ten WotLK races, NPC appearance textures and helmet
 attachment adaptation.
+Appearance tables use shared, locale-independent paths through a small
+WarcraftXL extension; no per-language race patch is required.
 
 **Experimental alpha.** Some customization and rendering limitations remain;
 see [compatibility](docs/COMPATIBILITY.md). Supply your own client and exports:
