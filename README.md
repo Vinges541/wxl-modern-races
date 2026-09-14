@@ -6,6 +6,8 @@ Supports both sexes of all ten WotLK races, NPC appearance textures and helmet
 attachment adaptation.
 Appearance tables use shared, locale-independent paths through a small
 WarcraftXL extension; no per-language race patch is required.
+An optional [druid-form package](docs/BUILD.md#8-druid-forms) prepares the existing
+WotLK forms and color variants from the pinned Retail donor.
 
 **Experimental alpha.** Some customization and rendering limitations remain;
 see [compatibility](docs/COMPATIBILITY.md). Supply your own client and exports:

@@ -3,12 +3,26 @@
 #define WXL_EXTENSION
 #include "wxl/PluginApi.h"
 
+#ifdef WXL_DRUID_FORMS
+#define PLUGIN_NAME "wxl-druid-forms"
+#define LOG_CHANNEL "druid-forms"
+#define TABLE_ONE "CreatureDisplayInfo.dbc"
+#define TABLE_TWO "CreatureModelData.dbc"
+#define TABLE_ROOT "WXL\\DruidForms\\DBFilesClient\\"
+#else
+#define PLUGIN_NAME "wxl-modern-races"
+#define LOG_CHANNEL "modern-races"
+#define TABLE_ONE "CharSections.dbc"
+#define TABLE_TWO "CreatureDisplayInfoExtra.dbc"
+#define TABLE_ROOT "WXL\\ModernRaces\\DBFilesClient\\"
+#endif
+
 static const WXL_Api* services;
 static int registered;
 typedef int (__stdcall* FileOpenFn)(void*, const char*, uint32_t, void**);
 static FileOpenFn original_open;
 static const WXL_PluginInfo info = {
-    sizeof(WXL_PluginInfo), WXL_API_VERSION, "wxl-modern-races", 1, WXL_CLIENT_BUILD
+    sizeof(WXL_PluginInfo), WXL_API_VERSION, PLUGIN_NAME, 1, WXL_CLIENT_BUILD
 };
 
 static unsigned char fold(unsigned char c)
@@ -33,13 +47,13 @@ static const char* redirect(void* archive, const char* name)
     const char* replacement;
     /* An explicit archive handle must retain its original lookup semantics. */
     if (archive) return name;
-    if (same_name(name, "DBFilesClient\\CharSections.dbc"))
-        replacement = "WXL\\ModernRaces\\DBFilesClient\\CharSections.dbc";
-    else if (same_name(name, "DBFilesClient\\CreatureDisplayInfoExtra.dbc"))
-        replacement = "WXL\\ModernRaces\\DBFilesClient\\CreatureDisplayInfoExtra.dbc";
+    if (same_name(name, "DBFilesClient\\" TABLE_ONE))
+        replacement = TABLE_ROOT TABLE_ONE;
+    else if (same_name(name, "DBFilesClient\\" TABLE_TWO))
+        replacement = TABLE_ROOT TABLE_TWO;
     else return name;
     if (services && services->Log)
-        services->Log(WXL_LOG_INFO, "modern-races", "appearance redirect: %s", replacement);
+        services->Log(WXL_LOG_INFO, LOG_CHANNEL, "appearance redirect: %s", replacement);
     return replacement;
 }
 
@@ -66,6 +80,6 @@ int __cdecl WXL_Load(const WXL_Api* api)
                                WXL_HOOK_DEFAULT_PRIORITY)) return 0;
     registered = 1;
     if (services->Log)
-        services->Log(WXL_LOG_INFO, "modern-races", "locale-independent appearance redirects ready");
+        services->Log(WXL_LOG_INFO, LOG_CHANNEL, "locale-independent appearance redirects ready");
     return 1;
 }

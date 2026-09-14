@@ -147,4 +147,4 @@ class EmulationTests(unittest.TestCase):
         from check_appearance_redirect import check
         data = Path(os.environ['WXL_REDIRECT_DLL']).read_bytes()
         for delta in (0, 0x08000000):
-            self.assertEqual(check(data, delta)['cases'], 196)
+            self.assertEqual(check(data, delta)['cases'], 212)

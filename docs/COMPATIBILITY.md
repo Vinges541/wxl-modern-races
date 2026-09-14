@@ -6,12 +6,14 @@ hashes in [dependencies.lock.json](../dependencies.lock.json).
 | Area | Support and limitations |
 | --- | --- |
 | Races | Both sexes of all ten WotLK races are prepared. Not every customization, animation or equipment combination has been tested in-game. |
+| Druid forms | Optional package covers 30 existing Night Elf/Tauren display variants: cat, bear/dire bear, moonkin, tree, travel, aquatic, flight and swift flight. Uses matching display IDs from the pinned Retail donor, not artifact/barbershop unlocks. Structural and x86 ABI checks do not establish in-game compatibility. |
 | NPC appearance | 13,706 atlases converted; 15 unmatched records remain. |
 | Death knights | 384 extra face rows use corresponding ordinary HD faces. |
 | Customization | Modern-only options, FacePose variants and Retail equipment are not fully ported. |
 | Textures | Composite textures use WotLK-compatible dimensions, not full Retail resolution. |
 | Elf eyes | Optional Primalist eye effects are excluded; ordinary eye materials remain. |
 | Undead female jaw | Uses the intact-jaw default, without a full jaw-customization mapping. |
+| Undead torso | Freezes the Retail Bony back as base geometry; alternate skin-type geometry is not selectable. |
 | Tauren | Creation/selection previews use a separate scale correction (male ×2/3, female ×0.8). World scale is unchanged. |
 | Locales | Shared appearance tables use locale-independent paths and early WarcraftXL redirects. ruRU is the tested client locale; other locales require in-game testing. |
 

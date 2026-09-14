@@ -20,6 +20,8 @@ async function writeStatus(status) {
 }
 
 async function run({ core, log, CASCRemote, M2Exporter, db2 }) {
+  if (process.env.WXL_EXPORT_DRUID_FORMS === '1')
+    return require('./wow-export-druid-forms.cjs').run({ core, log, CASCRemote, M2Exporter, db2 });
   if (process.env.WXL_EXPORT_APPEARANCE === '1')
     return require('./wow-export-appearance.cjs').run({ core, log, CASCRemote, db2 });
   if (process.env.WXL_EXPORT_ALL_RACES === '1')

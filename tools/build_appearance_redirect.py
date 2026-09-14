@@ -15,7 +15,7 @@ SDK_HASHES = {
 }
 
 
-def build(sdk, clang='clang', linker='lld-link'):
+def build(sdk, clang='clang', linker='lld-link', *, druid_forms=False):
     sdk = no_links(sdk)
     for name, expected in SDK_HASHES.items():
         if hashlib.sha256(no_links(sdk/'wxl'/name).read_bytes()).hexdigest() != expected:
@@ -25,12 +25,14 @@ def build(sdk, clang='clang', linker='lld-link'):
         subprocess.run([clang, '--target=i686-pc-windows-msvc', '-std=c11', '-Oz',
                         '-ffreestanding', '-fno-builtin', '-fno-stack-protector',
                         '-fno-ident', '-mno-sse', '-mno-sse2', '-g0', '-Wall', '-Wextra', '-Werror',
+                        *(['-DWXL_DRUID_FORMS=1'] if druid_forms else []),
                         '-I', str(sdk), '-c', str(ROOT/'runtime/appearance_redirect.c'),
                         '-o', str(work/'redirect.obj')], check=True)
+        name = 'wxl-druid-forms.dll' if druid_forms else 'wxl-modern-races.dll'
         subprocess.run([linker, '/dll', '/noentry', '/nodefaultlib', '/machine:x86',
                         '/timestamp:0', '/opt:ref', '/opt:icf', '/safeseh:no',
-                        '/out:wxl-modern-races.dll', 'redirect.obj'], cwd=work, check=True)
-        return (work/'wxl-modern-races.dll').read_bytes()
+                        '/out:' + name, 'redirect.obj'], cwd=work, check=True)
+        return (work/name).read_bytes()
 
 
 def main():

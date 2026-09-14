@@ -3,6 +3,39 @@ import struct
 from .appearance import array
 
 
+def fix_undead_torso(data):
+  """Expose the default Bony back without changing any draw/shadow indices.
+
+  Build 12340 hides ids 0..2000, then selects only slots 0..18. Retail
+  Scourge's back is group 19: choice Bony selects 1901; Mottled/Fresh 1902.
+  Freeze only 1901 as base geometry (0), leaving 1902 hidden. The other
+  Bony parts (2901/3001) are already frozen by appearance preparation.
+  """
+  if len(data) < 60 or data[:4] != b'SKIN':
+    raise ValueError('expected modern SKIN header')
+  count, start = array(data, 28, 48)
+  if count == 0 or start < 60:
+    raise ValueError('expected nonempty skin sections outside the header')
+  sections = [start+i*48 for i in range(count)]
+  group = [(at, struct.unpack_from('<H', data, at)[0]) for at in sections
+           if 1900 <= struct.unpack_from('<H', data, at)[0] < 2000]
+  if sorted(gid for _, gid in group) != [1901, 1902]:
+    raise ValueError('expected exactly the two Scourge back variants 1901/1902')
+  # Both batch tables must remain valid and byte-identical after the change.
+  for header, stride in ((36, 24), (48, 12)):
+    n, offset = array(data, header, stride)
+    if n and offset < 60:
+      raise ValueError('batch table overlaps header')
+    for i in range(n):
+      if struct.unpack_from('<H', data, offset+i*stride+4)[0] >= count:
+        raise ValueError('invalid draw/shadow section reference')
+  out = bytearray(data)
+  at = next(at for at, gid in group if gid == 1901)
+  struct.pack_into('<H', out, at, 0)
+  return bytes(out), {'defaultBack': 1901, 'hiddenBack': 1902, 'offset': at,
+                      'changedBytes': 2, 'runtimeVerified': False}
+
+
 def fix_sections(data, *, jaw=False, exclude_primalist=False):
   skin = bytearray(data)
   if skin[:4] != b'SKIN':

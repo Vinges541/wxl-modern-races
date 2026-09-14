@@ -30,6 +30,9 @@ obligations. This source repository does not include those binaries.
 [wow.export](https://github.com/Kruithne/wow.export) 0.2.19 is an external MIT
 tool. tools/wow-export-*.cjs and install_export_hook.py integrate with its
 bundled internal interfaces; the upstream application is not shipped here.
+The creature-geoset selection policy in `src/wxl_races/druids.py` follows
+wow.export's model-viewer selection behavior, with added bounds checks and
+draw/shadow-batch remapping for WotLK.
 Upstream notice:
 
 ```text

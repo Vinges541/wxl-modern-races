@@ -59,6 +59,7 @@ def assemble(workspace):
   # Runtime fix no longer depends on whatever happens to be installed in the client.
   from repair_runtime_v2 import inline_talk, shadows
   from repair_tauren_talk_event import repair
+  from wxl_races.final_details import fix_undead_torso
   for sex in ('Male', 'Female'):
     directory = patch / 'Character/Tauren' / sex
     model = directory / f'Tauren{sex}.m2'
@@ -71,6 +72,8 @@ def assemble(workspace):
     model.write_bytes(data)
   for skin in sorted((patch / 'Character').glob('*/*/*.skin')):
     data, _ = shadows((base / skin.relative_to(patch)).read_bytes(), skin.read_bytes())
+    if skin.relative_to(patch).parts[1] == 'Scourge':
+      data, _ = fix_undead_torso(data)
     skin.write_bytes(data)
   tables = patch / 'DBFilesClient'
   if {p.name for p in tables.iterdir()} != {'CharSections.dbc', 'CreatureDisplayInfoExtra.dbc'}:

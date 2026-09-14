@@ -1,14 +1,37 @@
 from tests.fixture_paths import integration, fixture_root, client_root, dbc_root
 import struct
+import sys
 import unittest
 from pathlib import Path
-from wxl_races.final_details import fix_sections
+from wxl_races.final_details import fix_sections, fix_undead_torso
 from wxl_races.appearance import array
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class DetailTests(unittest.TestCase):
+  @integration
+  def test_undead_back_after_jaw_and_shadow_preparation(self):
+    sys.path.insert(0, str(ROOT / 'tools'))
+    from repair_runtime_v2 import shadows
+    checked = 0
+    for sex in ('Male', 'Female'):
+      prefix = Path('Character/Scourge') / sex
+      files = list((fixture_root() / 'build/all-appearance-geometry-v2' / prefix).glob('*.skin'))
+      self.assertEqual(len(files), 7)
+      for path in files:
+        data = path.read_bytes()
+        if sex == 'Female':
+          data, _ = fix_sections(data, jaw=True)
+        original = fixture_root() / 'build/Patch-ModernRaces-HD.MPQ' / prefix / path.name
+        data, _ = shadows(original.read_bytes(), data)
+        fixed, report = fix_undead_torso(data)
+        self.assertEqual(len(fixed), len(data))
+        self.assertEqual(sum(a != b for a, b in zip(data, fixed)), 2)
+        self.assertEqual(fixed[report['offset']:report['offset']+2], b'\0\0')
+        checked += 1
+    self.assertEqual(checked, 14)
+
   @integration
   def test_elf_fix_preserves_all_non_primalist_sections_and_materials(self):
     for race in ('NightElf', 'BloodElf'):
