@@ -139,7 +139,7 @@ def main(argv=None):
   source.add_argument('--package', type=Path)
   source.add_argument('--rollback', type=Path)
   parser.add_argument('--apply', action='store_true')
-  parser.add_argument('--stormlib', type=Path, help='required for a druid-form or torso MPQ package')
+  parser.add_argument('--stormlib', type=Path, help='required for a torso MPQ package')
   parser.add_argument('--no-backup', action='store_true', help='explicit opt-in for new-only MPQ packages')
   parser.add_argument('--report', type=Path, help='new private MPQ installation report')
   args = parser.parse_args(argv)
@@ -159,12 +159,6 @@ def main(argv=None):
         if args.stormlib is None:
           raise ValueError('Torso packages require --stormlib for independent archive checks')
         from undead_torso import install
-        print(json.dumps(install(package, client, args.stormlib, args.apply, args.no_backup, args.report), indent=2))
-        return 0
-      if metadata.get('kind') == 'wxl-druid-forms':
-        if args.stormlib is None:
-          raise ValueError('Druid packages require --stormlib for independent archive checks')
-        from druid_forms import install
         print(json.dumps(install(package, client, args.stormlib, args.apply, args.no_backup, args.report), indent=2))
         return 0
       if args.no_backup or args.report or args.stormlib:

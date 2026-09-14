@@ -3,8 +3,6 @@
 ## 0.1.0a1 — unreleased
 
 - Restore the default Undead back geoset for both sexes and all skin profiles.
-- Optional druid-form package: 30 display variants, namespaced assets and a
-  separate source-built redirect extension; existing racial assets are unchanged.
 - Preparation tools for all 20 WotLK race/sex variants and NPC appearance.
 - Runtime patches for model visibility, shadows and animation loading.
 - Locale-independent appearance DBC routing, a source-built WarcraftXL extension

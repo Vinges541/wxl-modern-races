@@ -263,63 +263,7 @@ requests use only the unique namespaced copies. New full builds omit those old
 entries entirely. The migration does not claim other client locales have been
 tested in-game.
 
-## 8. Druid forms
-
-This optional package is separate from the 20 player-race models. It preserves
-WotLK form/display IDs and color selection, using corresponding displays in the
-pinned Retail build. It does not unlock Retail-only artifact or barber options.
-NPCs using those same form display IDs also receive the new appearance; other
-display records and original model paths are unchanged.
-
-Export `CreatureDisplayInfo.json` and `CreatureModelData.json` with the existing
-appearance adapter (`WXL_EXPORT_APPEARANCE=1`, `WXL_SCALE_TABLES=1`). Keep the
-matching `build.json` beside them. Then create a fresh private workspace:
-
-```sh
-python tools/plan_druid_forms.py --client /path/to/client \
-  --retail-tables /private/work/assets/appearance --stormlib /path/to/libstorm.dylib \
-  --workspace /private/druids
-```
-
-Close the exporter, clear other export-mode variables, and run the configured
-wow.export adapter with `WXL_WORKSPACE=/private/druids`, the pinned
-`WXL_BUILD_CONFIG`, `WXL_AUTO_EXPORT_HUMAN_MALE=1` and `WXL_EXPORT_DRUID_FORMS=1`.
-This pass uses the explicit saved build metadata even if the live build list has
-changed; the matching CDN data must remain available. It never substitutes latest.
-Wait for `druid-export-status.json` to report `complete`.
-
-With the pinned SDK, Clang/lld-link, Pillow and the optional Unicorn dependency:
-
-```sh
-python tools/druid_forms.py build --workspace /private/druids \
-  --output /private/druids-package --sdk /path/to/wxl-core/include \
-  --stormlib /path/to/libstorm.dylib
-python tools/install_release.py --client /path/to/client \
-  --package /private/druids-package --stormlib /path/to/libstorm.dylib
-```
-
-The builder checks model/skin references, texture decoding, shadow indices, DBC
-changes and the extension ABI, then reads every MPQ member through two readers.
-After WoW is closed, add `--apply --no-backup --report /private/reports/druids.json`
-to the installation command. The report directory must exist. This new-only
-installer refuses differing existing files and leaves EXE, race/equipment
-archives, other extensions and settings intact. An interrupted installation must
-be inspected before launch; there is no automatic rollback.
-
-Transfer both files together to an already prepared build-12340 runtime:
-
-- `Data/Patch-ModernRaces-DruidForms.MPQ`
-- `Extensions/wxl-druid-forms/wxl-druid-forms.dll`
-
-The extension redirects only `CreatureDisplayInfo.dbc` and `CreatureModelData.dbc`
-to `WXL/DruidForms/DBFilesClient/`. Only the 30 selected displays' model references
-change; new model rows retain the original scale/collision fields. All original
-model rows remain intact. This cannot be combined blindly with another project
-that overrides those same tables. Check each form in-game, including changing
-forms, moving, attacking/casting, swimming/flying and shadows, before treating
-the package as gameplay-verified.
-
-## 9. Update existing Undead torsos
+## 8. Update existing Undead torsos
 
 Full preparation includes the default Bony back for both sexes. Older packages
 left its geoset 1901 hidden by the Wrath character selector. Update an installed

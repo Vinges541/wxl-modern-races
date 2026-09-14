@@ -13,9 +13,8 @@ from appearance_tables import NAMESPACE, TABLES
 from patch_wow import Pe32
 
 
-def check(data, delta=0, *, expected_hash=DLL_SHA256, namespace=NAMESPACE,
-          tables=TABLES, plugin_name='wxl-modern-races'):
-    if hashlib.sha256(data).hexdigest() != expected_hash:
+def check(data, delta=0):
+    if hashlib.sha256(data).hexdigest() != DLL_SHA256:
         raise ValueError('Expected the verified appearance extension')
     pe = Pe32(bytearray(data))
     if pe.u16(pe.file_header) != 0x14c or pe.u32(pe.file_header+4) != 0:
@@ -106,7 +105,7 @@ def check(data, delta=0, *, expected_hash=DLL_SHA256, namespace=NAMESPACE,
         return u.reg_read(UC_X86_REG_EAX)
 
     info = invoke(exports['WXL_Query'])
-    if (read(info), read(info+4), string(read(info+8)), read(info+16)) != (20, 1, plugin_name, 12340):
+    if (read(info), read(info+4), string(read(info+8)), read(info+16)) != (20, 1, 'wxl-modern-races', 12340):
         raise ValueError('Plugin query mismatch')
     for pointer, size, version, hook_value in ((0,28,1,hook), (api,24,1,hook),
                                              (api,28,2,hook), (api,28,1,0)):
@@ -123,13 +122,11 @@ def check(data, delta=0, *, expected_hash=DLL_SHA256, namespace=NAMESPACE,
     if invoke(exports['WXL_Load'], (api,)) != 1:
         raise ValueError('Load must be idempotent')
     cases = 0
-    positive = [f'DBFilesClient/{name}' for name in tables]
+    positive = [f'DBFilesClient/{name}' for name in TABLES]
     negative = ['', 'DBFilesClient', 'DBFilesClient/ChrRaces.dbc',
-                *[f'DBFilesClient/{name}' for name in ('CharSections.dbc', 'CreatureDisplayInfo.dbc',
-                  'CreatureDisplayInfoExtra.dbc', 'CreatureModelData.dbc') if name not in tables],
-                '../DBFilesClient/CharSections.dbc',
+                'DBFilesClient/CreatureDisplayInfo.dbc', '../DBFilesClient/CharSections.dbc',
                 'DBFilesClient/CharSections.dbc.old', 'XDBFilesClient/CharSections.dbc',
-                'Character/Human/Male/HumanMale.m2', *(f'{namespace}/{name}' for name in tables)]
+                'Character/Human/Male/HumanMale.m2', *(f'{NAMESPACE}/{name}' for name in TABLES)]
     for callback in callbacks.values():
         for source in [None, *positive, *negative]:
             variants = [source] if source is None else [source, source.upper(), source.lower(), source.replace('/', '\\')]
@@ -139,7 +136,7 @@ def check(data, delta=0, *, expected_hash=DLL_SHA256, namespace=NAMESPACE,
                         name_ptr, out = arena+0x2000 if variant is not None else 0, arena+0x3000
                         if name_ptr:
                             u.mem_write(name_ptr, variant.encode()+b'\0')
-                        expected = (f'{namespace}/{source.split("/")[-1]}'.replace('/', '\\')
+                        expected = (f'{NAMESPACE}/{source.split("/")[-1]}'.replace('/', '\\')
                                     if source in positive and not archive else variant)
                         if invoke(callback, (archive, name_ptr, flags, out), True) != 0x55:
                             raise ValueError('Native return value changed')

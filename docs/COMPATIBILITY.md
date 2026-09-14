@@ -6,7 +6,6 @@ hashes in [dependencies.lock.json](../dependencies.lock.json).
 | Area | Support and limitations |
 | --- | --- |
 | Races | Both sexes of all ten WotLK races are prepared. Not every customization, animation or equipment combination has been tested in-game. |
-| Druid forms | Optional package covers 30 existing Night Elf/Tauren display variants: cat, bear/dire bear, moonkin, tree, travel, aquatic, flight and swift flight. Uses matching display IDs from the pinned Retail donor, not artifact/barbershop unlocks. Structural and x86 ABI checks do not establish in-game compatibility. |
 | NPC appearance | 13,706 atlases converted; 15 unmatched records remain. |
 | Death knights | 384 extra face rows use corresponding ordinary HD faces. |
 | Customization | Modern-only options, FacePose variants and Retail equipment are not fully ported. |
